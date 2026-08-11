@@ -6,6 +6,7 @@ export interface AuthRequest extends Request{
     user?:any
 }
 
+//for verify the token
 const verifyToken = (req:AuthRequest, res:Response, next:NextFunction)=>{
     const authHeader = req.headers.authorization
 
@@ -32,3 +33,15 @@ const verifyToken = (req:AuthRequest, res:Response, next:NextFunction)=>{
 }
 
 export default verifyToken
+
+
+//for checking the role
+export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
+    if (req.user?.role !== "ADMIN") {
+        return res.status(403).json({
+            success: false,
+            message: "Access denied. Admins only."
+        });
+    }
+    next();
+};
