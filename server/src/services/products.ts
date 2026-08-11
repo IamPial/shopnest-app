@@ -26,7 +26,7 @@ router.post('/', async(req:Request, res:Response)=>{
 
 
 
-//for read products data 
+//for fetch products data 
 router.get("/", async(req:Request, res:Response)=>{
     try{
         const data = await prisma.products.findMany()
