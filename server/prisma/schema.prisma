@@ -40,10 +40,27 @@ model Products{
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   isDeleted Boolean @default(false)
+  categoryId String 
+  category  Category @relation(fields: [categoryId], references: [id])
 
   @@map("products")
 
 }
+
+
+//category table model
+model Category{
+  id String @id @default(uuid())
+  name String @unique
+  isDelete Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products Products[] 
+
+  @@map("categories")
+}
+
+
 
 
 
