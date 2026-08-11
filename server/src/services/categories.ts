@@ -23,4 +23,25 @@ router.post('/', async(req:Request, res:Response)=>{
     }
 })
 
+//for fetch categories
+router.use('/', async(req:Request, res:Response)=>{
+    try{
+        const data = await prisma.category.findMany()
+        res.json({
+            success:true,
+            message: "Data fetched successfully",
+            data,
+
+        })
+    }catch(error:any){
+        res.json({
+            success:false,
+            message: "Data fetched failed",
+            data:error
+        })
+    }
+})
+
+
+
 export default router
