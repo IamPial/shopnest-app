@@ -29,7 +29,11 @@ router.post('/', async(req:Request, res:Response)=>{
 //for fetch products data 
 router.get("/", async(req:Request, res:Response)=>{
     try{
-        const data = await prisma.products.findMany()
+        const data = await prisma.products.findMany({
+            include:{
+                category:true
+            }
+        })
         res.json({
             success:true,
             message:"Data fetching successfully",
@@ -42,6 +46,28 @@ router.get("/", async(req:Request, res:Response)=>{
             data:error
         })
     }
+})
+
+
+//for fetch products details
+router.get("/:id", async(req:Request, res:Response)=>{
+   try{
+     const id = req.params.id as string
+     const data = await prisma.products.findUnique({
+     where:{id}
+     })
+     res.json({
+     success:true,
+     message:"Fetching details successfully!",
+     data,
+   })
+   }catch(error:any){
+    res.json({
+        success:false,
+        message:"Failed to fetching details",
+        data:error
+    })
+   }
 })
 
 
