@@ -7,7 +7,7 @@ const router = Router()
 
 
 //for register
-router.post("/", async(req:Request, res:Response)=>{
+router.post("/register", async(req:Request, res:Response)=>{
     try{
       const {name, email, password } = req.body
       const isExistingUser = await prisma.user.findUnique({where:{email}})
@@ -69,7 +69,7 @@ router.post('/login', async(req:Request, res:Response)=>{
         const options: SignOptions = {
         expiresIn: (process.env.JWT_EXPIRES_IN || "7d") as SignOptions["expiresIn"]
       };
-      
+
         const token = jwt.sign(
             {id:user.id, email:user.email, role:user.role},
             process.env.JWT_SECRET as string,
