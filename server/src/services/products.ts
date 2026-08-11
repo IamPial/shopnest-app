@@ -76,5 +76,27 @@ router.get("/:id", async(req:Request, res:Response)=>{
 })
 
 
+//for delete products data
+router.delete("/:id", async(req:Request, res:Response)=>{
+    try{
+        const id = req.params.id as string
+        const data = await prisma.products.delete({
+        where:{id}
+    })
+    res.json({
+        success:true,
+        message:"product deleted successfully!",
+        data
+    })
+    }catch(error:any){
+        res.json({
+            success:true,
+            message:"product deleted failed",
+            data:error
+        })
+    }
+})
+
+
 
 export default router
