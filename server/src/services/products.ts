@@ -8,7 +8,12 @@ const router = Router()
 router.post('/', async(req:Request, res:Response)=>{
    try{
      const productData = req.body
-    const createData = await prisma.products.create({data:productData})
+    const createData = await prisma.products.create({
+        data:productData,
+        include:{
+            category:true
+        },
+    })
     res.json({
         success:true,
         message:"Product Added Successfully",
