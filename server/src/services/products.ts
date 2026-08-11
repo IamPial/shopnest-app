@@ -1,12 +1,12 @@
 import { Router, type Request , type Response } from "express";
 import prisma from "../lib/prisma";
-import verifyToken from "../middlewares/auth";
+import verifyToken, { isAdmin } from "../middlewares/auth";
 
 const router = Router()
 
 
 //for create products data
-router.post('/', verifyToken, async(req:Request, res:Response)=>{
+router.post('/', verifyToken, isAdmin, async(req:Request, res:Response)=>{
    try{
      const productData = req.body
     const createData = await prisma.products.create({
@@ -78,7 +78,7 @@ router.get("/:id", async(req:Request, res:Response)=>{
 
 
 //for delete products data
-router.delete("/:id", verifyToken, async(req:Request, res:Response)=>{
+router.delete("/:id", verifyToken, isAdmin, async(req:Request, res:Response)=>{
     try{
         const id = req.params.id as string
         const data = await prisma.products.delete({
