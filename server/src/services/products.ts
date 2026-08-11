@@ -25,4 +25,25 @@ router.post('/', async(req:Request, res:Response)=>{
 })
 
 
+
+//for read products data 
+router.get("/", async(req:Request, res:Response)=>{
+    try{
+        const data = await prisma.products.findMany()
+        res.json({
+            success:true,
+            message:"Data fetching successfully",
+            data,
+        })
+    }catch(error:any){
+        res.json({
+            success:false,
+            message:"Error fetching data",
+            data:error
+        })
+    }
+})
+
+
+
 export default router
