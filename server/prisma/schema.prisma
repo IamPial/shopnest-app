@@ -20,7 +20,7 @@ model User{
   role UserRole @default(CUSTOMER)
 
   orders Orders[]
-  orderItem OrderItem[]
+ 
 
 
   @@map("users")
@@ -82,7 +82,7 @@ model Orders {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   user User @relation(fields: [userId], references: [id])
- 
+  orderItems OrderItem[]   
 
   @@map("orders")
 }
@@ -90,17 +90,18 @@ model Orders {
 //order Item
 model OrderItem {
   id        String   @id @default(uuid())
-  userId    String
+  orderId    String
   productId String
   quantity  Int      @default(1)
-
-  user    User     @relation(fields: [userId], references: [id])
+  price     Decimal
+  
+  order   Orders   @relation(fields: [orderId], references: [id])
   product Products @relation(fields: [productId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([userId, productId])
+  @@unique([orderId, productId])
   @@map("order_items")
 }
 
