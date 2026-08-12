@@ -2,6 +2,7 @@ import { Router } from "express";
 import products from '../services/products'
 import category from "../services/categories"
 import users from "../services/users"
+import orders from "../services/orders"
 import authRoutes from "../services/auth.services"
 
 
@@ -25,6 +26,9 @@ router.use('/products', products)
 
 //for categories
 router.use('/categories', category)
+
+//for orders
+router.use("/orders", orders)
 
 
 export default router
