@@ -1,9 +1,14 @@
-import { Router } from "express";
-import prisma from "../lib/prisma";
-import verifyToken from "../middlewares/auth";
-const router = Router();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const prisma_1 = __importDefault(require("../lib/prisma"));
+const auth_1 = __importDefault(require("../middlewares/auth"));
+const router = (0, express_1.Router)();
 //for create order
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', auth_1.default, async (req, res) => {
     try {
         const userId = req.user.id;
         const { items } = req.body;
@@ -13,7 +18,7 @@ router.post('/', verifyToken, async (req, res) => {
                 message: "Order must contain at least one item"
             });
         }
-        const order = await prisma.$transaction(async (tx) => {
+        const order = await prisma_1.default.$transaction(async (tx) => {
             let totalAmount = 0;
             const orderItemsData = [];
             for (const item of items) {
@@ -70,9 +75,9 @@ router.post('/', verifyToken, async (req, res) => {
     }
 });
 //for get all orders
-router.get('/', verifyToken, async (req, res) => {
+router.get('/', auth_1.default, async (req, res) => {
     try {
-        const orders = await prisma.orders.findMany({
+        const orders = await prisma_1.default.orders.findMany({
             where: { userId: req.user.id },
             include: {
                 orderItems: {
@@ -94,4 +99,4 @@ router.get('/', verifyToken, async (req, res) => {
         });
     }
 });
-export default router;
+exports.default = router;

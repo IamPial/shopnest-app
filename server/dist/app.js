@@ -1,13 +1,18 @@
-import express from 'express';
-import cors from 'cors';
-import routes from './routes';
-const app = express();
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
+const routes_1 = __importDefault(require("./routes"));
+const app = (0, express_1.default)();
 //Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use((0, cors_1.default)());
+app.use(express_1.default.json());
+app.use(express_1.default.urlencoded({ extended: true }));
 //API Routes
-app.use('/api/v1', routes);
+app.use('/api/v1', routes_1.default);
 //Home Route
 app.get("/", (req, res) => {
     res.json({
@@ -15,4 +20,4 @@ app.get("/", (req, res) => {
         message: "Welcome to the Backend server!"
     });
 });
-export default app;
+exports.default = app;

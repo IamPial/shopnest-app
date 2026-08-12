@@ -1,12 +1,50 @@
-import { Router } from "express";
-import prisma from "../lib/prisma";
-import verifyToken, { isAdmin } from "../middlewares/auth";
-const router = Router();
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const prisma_1 = __importDefault(require("../lib/prisma"));
+const auth_1 = __importStar(require("../middlewares/auth"));
+const router = (0, express_1.Router)();
 //for create products data
-router.post('/', verifyToken, isAdmin, async (req, res) => {
+router.post('/', auth_1.default, auth_1.isAdmin, async (req, res) => {
     try {
         const productData = req.body;
-        const createData = await prisma.products.create({
+        const createData = await prisma_1.default.products.create({
             data: productData,
             include: {
                 category: true
@@ -29,7 +67,7 @@ router.post('/', verifyToken, isAdmin, async (req, res) => {
 //for fetch products data 
 router.get("/", async (req, res) => {
     try {
-        const data = await prisma.products.findMany({
+        const data = await prisma_1.default.products.findMany({
             include: {
                 category: true
             }
@@ -52,7 +90,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
     try {
         const id = req.params.id;
-        const data = await prisma.products.findUnique({
+        const data = await prisma_1.default.products.findUnique({
             where: { id }
         });
         res.json({
@@ -90,7 +128,7 @@ router.patch("/:id", async (req, res) => {
         }
         // Verify category exists if categoryId is being updated
         if (updateData.categoryId) {
-            const category = await prisma.category.findUnique({
+            const category = await prisma_1.default.category.findUnique({
                 where: { id: updateData.categoryId },
             });
             if (!category) {
@@ -101,7 +139,7 @@ router.patch("/:id", async (req, res) => {
             }
         }
         // Update product in database
-        const updatedProduct = await prisma.products.update({
+        const updatedProduct = await prisma_1.default.products.update({
             where: { id },
             data: updateData,
             include: {
@@ -131,10 +169,10 @@ router.patch("/:id", async (req, res) => {
     }
 });
 //for delete products data
-router.delete("/:id", verifyToken, isAdmin, async (req, res) => {
+router.delete("/:id", auth_1.default, auth_1.isAdmin, async (req, res) => {
     try {
         const id = req.params.id;
-        const data = await prisma.products.delete({
+        const data = await prisma_1.default.products.delete({
             where: { id }
         });
         res.json({
@@ -151,4 +189,4 @@ router.delete("/:id", verifyToken, isAdmin, async (req, res) => {
         });
     }
 });
-export default router;
+exports.default = router;
