@@ -1,45 +1,19 @@
-'use client';
-
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { Products, Category } from '../types';
-import { productApi, categoryApi } from '../services/mockApi';
+import { productApi } from '../services/mockApi';
 import { ProductCard } from '../components/product/ProductCard';
 import { ArrowRight, Sparkles, ShieldCheck, Truck, Headphones, ChevronRight } from 'lucide-react';
+import CategorySection from '@/components/categories';
 
-export default function HomePage() {
-  const [allProducts, setAllProducts] = useState<Products[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+export const dynamic = 'force-dynamic';
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [cats, prods] = await Promise.all([
-          categoryApi.getCategories(),
-          productApi.getProducts(),
-        ]);
-        setCategories(cats);
-        setAllProducts(prods.products);
-      } catch (err) {
-        console.error('Failed to load home page data', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
-  }, []);
+export default async function HomePage() {
 
-  const categoryImages: Record<string, string> = {
-    'Electronics & Audio': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80',
-    'Smart Devices': 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80',
-    'Computing & Gaming': 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
-    'Lifestyle & Accessories': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80',
-  };
+  const { products: allProducts } = await productApi.getProducts();
 
   return (
     <div className="space-y-16 pb-16">
-      
+
       {/* Hero Banner Section */}
       <section className="relative overflow-hidden bg-slate-900 text-white py-20 lg:py-28">
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-indigo-600/30 rounded-full blur-3xl" />
@@ -47,7 +21,7 @@ export default function HomePage() {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            
+
             <div className="space-y-6 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 text-xs font-semibold tracking-wide uppercase">
                 <Sparkles className="w-4 h-4 text-indigo-400" />
@@ -112,49 +86,7 @@ export default function HomePage() {
       </section>
 
       {/* Category Showcase Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-end justify-between mb-8">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Explore Product Categories
-            </h2>
-            <p className="text-sm text-slate-500 mt-1">
-              Carefully organized collections matching our database categories.
-            </p>
-          </div>
-          <Link
-            href="/products"
-            className="text-sm font-bold text-indigo-600 hover:text-indigo-700 flex items-center gap-1 group"
-          >
-            All Categories <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {categories.map((cat) => {
-            const bgImg = categoryImages[cat.name] || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80';
-            return (
-              <Link
-                key={cat.id}
-                href={`/products?categoryId=${cat.id}`}
-                className="group relative rounded-2xl overflow-hidden h-64 border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-end p-6"
-              >
-                <img
-                  src={bgImg}
-                  alt={cat.name}
-                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-900/40 to-transparent" />
-                <div className="relative z-10 text-white">
-                  <h3 className="text-xl font-bold text-white group-hover:text-indigo-300 transition-colors">
-                    {cat.name}
-                  </h3>
-                </div>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
+      <CategorySection />
 
       {/* Featured Products Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -173,19 +105,11 @@ export default function HomePage() {
           </Link>
         </div>
 
-        {loading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-96 rounded-2xl bg-slate-200 animate-pulse" />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allProducts.slice(0, 6).map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {allProducts.slice(0, 6).map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
       </section>
 
       {/* Marketplace Trust Banner */}
@@ -217,3 +141,4 @@ export default function HomePage() {
     </div>
   );
 }
+
