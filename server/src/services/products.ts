@@ -77,6 +77,83 @@ router.get("/:id", async(req:Request, res:Response)=>{
 })
 
 
+//for update data
+router.patch("/:id", async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+    
+    const updateData = req.body;
+
+    // check the price
+    if (updateData.price !== undefined && updateData.price <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Price must be positive",
+      });
+    }
+
+    // check the stock
+    if (updateData.stock !== undefined && updateData.stock < 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Stock cannot be negative",
+      });
+    }
+
+    // Verify category exists if categoryId is being updated
+    if (updateData.categoryId) {
+      const category = await prisma.category.findUnique({
+        where: { id: updateData.categoryId },
+      });
+
+      if (!category) {
+        return res.status(404).json({
+          success: false,
+          message: "Category not found",
+        });
+      }
+    }
+
+    // Update product in database
+    const updatedProduct = await prisma.products.update({
+      where: { id },
+      data: updateData,
+      include: {
+        category: true,
+      },
+    });
+
+    // Return success response with updated product
+    res.status(200).json({
+      success: true,
+      message: "Product updated successfully",
+      data: updatedProduct,
+    });
+  } catch (error: any) {
+    // Handle not found error
+    if (error.code === "P2025") {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Error updating product",
+      error: error.message,
+    });
+  }
+});
+
+
+
+
+
+
+
+
+
 //for delete products data
 router.delete("/:id", verifyToken, isAdmin, async(req:Request, res:Response)=>{
     try{
