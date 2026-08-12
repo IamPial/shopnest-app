@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { Products, Category, ProductStatus } from '../../../types';
-import { productApi, categoryApi } from '../../../services/mockApi';
+import getAllProducts, { createProduct, updateProduct, deleteProduct } from '@/lib/api/products';
+import getCategories from '@/lib/api/categories';
 import { Plus, Search, Edit3, Trash2, ShieldCheck, X, Check } from 'lucide-react';
 
 export default function AdminProductsPage() {
@@ -36,12 +37,13 @@ export default function AdminProductsPage() {
     setLoading(true);
     try {
       const [prodsRes, catsRes] = await Promise.all([
-        productApi.getProducts(),
-        categoryApi.getCategories(),
+        getAllProducts(),
+        getCategories(),
       ]);
-      setProducts(prodsRes.products);
-      setCategories(catsRes);
-      if (catsRes.length > 0) setCategoryId(catsRes[0].id);
+      setProducts(Array.isArray(prodsRes) ? prodsRes : []);
+      const categoryList = Array.isArray(catsRes) ? catsRes : [];
+      setCategories(categoryList);
+      if (categoryList.length > 0) setCategoryId(categoryList[0].id || (categoryList[0] as any)._id);
     } catch (err) {
       console.error('Failed to load products for admin', err);
     } finally {
@@ -54,9 +56,9 @@ export default function AdminProductsPage() {
     setTitle('');
     setDescription('');
     setPrice(99.99);
-    setStock(20);
-    setImage('https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80');
-    setCategoryId(categories[0]?.id || '');
+    setStock(10);
+    setImage('');
+    if (categories.length > 0) setCategoryId(categories[0].id || (categories[0] as any)._id);
     setStatus('ACTIVE');
     setIsModalOpen(true);
   };
@@ -73,13 +75,15 @@ export default function AdminProductsPage() {
     setIsModalOpen(true);
   };
 
+
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
 
     try {
       if (editingProduct) {
-        const updated = await productApi.updateProduct(editingProduct.id, {
+        const prodId = editingProduct.id || (editingProduct as any)._id;
+        const updated = await updateProduct(prodId, {
           title,
           description,
           price: Number(price),
@@ -89,11 +93,11 @@ export default function AdminProductsPage() {
           status,
         });
         if (updated) {
-          setProducts((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+          setProducts((prev) => prev.map((p) => ((p.id || (p as any)._id) === (updated.id || updated._id) ? updated : p)));
           setActionNotice('Product updated successfully!');
         }
       } else {
-        const created = await productApi.createProduct({
+        const created = await createProduct({
           title,
           description,
           price: Number(price),
@@ -102,8 +106,10 @@ export default function AdminProductsPage() {
           categoryId,
           status,
         });
-        setProducts((prev) => [created, ...prev]);
-        setActionNotice('New product created successfully!');
+        if (created) {
+          setProducts((prev) => [created, ...prev]);
+          setActionNotice('New product created successfully!');
+        }
       }
       setIsModalOpen(false);
       setTimeout(() => setActionNotice(null), 3000);
@@ -117,8 +123,8 @@ export default function AdminProductsPage() {
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`Are you sure you want to delete "${name}"?`)) {
       try {
-        await productApi.deleteProduct(id);
-        setProducts((prev) => prev.filter((p) => p.id !== id));
+        await deleteProduct(id);
+        setProducts((prev) => prev.filter((p) => (p.id || (p as any)._id) !== id));
         setActionNotice(`Product "${name}" deleted.`);
         setTimeout(() => setActionNotice(null), 3000);
       } catch (e) {

@@ -3,7 +3,7 @@
 import React, { useEffect, useState, use } from 'react';
 import Link from 'next/link';
 import { Products } from '../../../types';
-import { productApi } from '../../../services/mockApi';
+import getAllProducts, { getProductById } from '@/lib/api/products';
 import { ProductCard } from '../../../components/product/ProductCard';
 import { ShieldCheck, Truck, RefreshCw, ChevronLeft } from 'lucide-react';
 
@@ -19,11 +19,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     async function loadData() {
       setLoading(true);
       try {
-        const prod = await productApi.getProductById(productId);
+        const prod = await getProductById(productId);
         if (prod) {
           setProduct(prod);
-          const allProds = await productApi.getProducts({ categoryId: prod.categoryId });
-          setRelatedProducts(allProds.products.filter((p) => p.id !== prod.id).slice(0, 3));
+          const allProds = await getAllProducts({ categoryId: prod.categoryId });
+          if (Array.isArray(allProds)) {
+            setRelatedProducts(allProds.filter((p: any) => (p.id || p._id) !== (prod.id || prod._id)).slice(0, 3));
+          }
         }
       } catch (err) {
         console.error('Failed to load product details', err);
@@ -33,6 +35,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     }
     loadData();
   }, [productId]);
+
 
   if (loading) {
     return (

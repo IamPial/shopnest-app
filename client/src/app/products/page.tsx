@@ -3,7 +3,8 @@
 import React, { useEffect, useState, useMemo, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Products, Category, FilterOptions, ProductStatus } from '../../types';
-import { productApi, categoryApi } from '../../services/mockApi';
+import getAllProducts from '@/lib/api/products';
+import getCategories from '@/lib/api/categories';
 import { ProductCard } from '../../components/product/ProductCard';
 import { Search, Filter, X, LayoutGrid, List, RotateCcw } from 'lucide-react';
 
@@ -31,8 +32,8 @@ function ProductCatalogContent() {
   useEffect(() => {
     async function loadCategories() {
       try {
-        const cats = await categoryApi.getCategories();
-        setCategories(cats);
+        const cats = await getCategories();
+        setCategories(Array.isArray(cats) ? cats : []);
       } catch (e) {
         console.error('Error fetching categories', e);
       }
@@ -53,8 +54,8 @@ function ProductCatalogContent() {
           inStockOnly,
           sortBy,
         };
-        const res = await productApi.getProducts(options);
-        setProducts(res.products);
+        const prods = await getAllProducts(options);
+        setProducts(Array.isArray(prods) ? prods : []);
       } catch (err) {
         console.error('Error loading products', err);
       } finally {
@@ -63,6 +64,7 @@ function ProductCatalogContent() {
     }
     fetchFiltered();
   }, [searchQuery, selectedCategoryId, minPrice, maxPrice, selectedStatus, inStockOnly, sortBy]);
+
 
   const resetFilters = () => {
     setSearchQuery('');

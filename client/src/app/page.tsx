@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { productApi } from '../services/mockApi';
+import getAllProducts from '@/lib/api/products';
 import { ProductCard } from '../components/product/ProductCard';
 import { ArrowRight, Sparkles, ShieldCheck, Truck, Headphones, ChevronRight } from 'lucide-react';
 import CategorySection from '@/components/categories';
@@ -8,8 +8,8 @@ import CategorySection from '@/components/categories';
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
+  const allProducts = await getAllProducts();
 
-  const { products: allProducts } = await productApi.getProducts();
 
   return (
     <div className="space-y-16 pb-16">
